@@ -276,7 +276,7 @@ end
 
 local function unlock_researchable()
   for _, technology in pairs(data.raw.technology) do
-    local has_all = true
+    local has_all = technology.enabled or technology.enabled == nil
     for _, prerequisite in pairs(technology.prerequisites or {}) do
       if not is_ok(TECHNOLOGY, prerequisite) then
         if debug[technology.name] then
