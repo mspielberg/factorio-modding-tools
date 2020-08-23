@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+realpath() ( cd "$1"; pwd -P )
+
+canon_name() {
+	infojson="$1"
+	parse_info() {
+		# something like: "name": "my-mod-name",
+		#                   1 --^ ^-- 2       ^-- 3
+		v=$(grep \"$1\" "$infojson" | head -n 1)
+		v="${v%\"*}" # trim to 3
+		v="${v##*:}" # trim to 1
+		v="${v#*\"}" # trim to 2
+		echo $v
+	}
+
+	name=$(parse_info name)
+	version=$(parse_info version)
+	echo "${name}_${version}"
+}
+
+moddir="$(realpath ${1:-.})"
+tmpdir="$(mktemp -d)"
+canon_name="$(canon_name "$moddir/info.json")"
+zipfile="$PWD/$canon_name.zip"
+ln -s "$moddir" "$tmpdir/$canon_name"
+
+cd "$tmpdir"
+
+files=$(find -H $canon_name -type f | grep -v '/\.\|/resources/')
+
+/usr/bin/env zip -9 "$zipfile" $files
