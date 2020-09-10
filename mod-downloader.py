@@ -56,7 +56,9 @@ def download_mod(player_data, moddir, mod_name):
     logging.info(f"Downloading {mod_name}")
     start = time.time_ns()
     total_size = 0
-    with urllib.request.urlopen(download_url) as response:
+    req = urllib.request.Request(download_url)
+    req.add_header('User-Agent', 'factorio-mod-downloader/0.1.0')
+    with urllib.request.urlopen(req) as response:
         if not 200 <= response.getcode() < 300 or response.getheader('Content-Type') != 'application/zip':
             raise 'failed'
             raise urllib.error.HTTPError(download_url, response.getcode(), response.msg, response.headers, response)
